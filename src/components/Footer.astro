@@ -1,0 +1,118 @@
+---
+import { SITE_NAME, CONTACT_EMAIL, LEGAL_ADDRESS } from "../config";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="footer-brand" href="/">
+          <img src="/mark.svg" alt="" width="26" height="26" />
+          <span>{SITE_NAME}</span>
+        </a>
+        <p class="footer-blurb">
+          Independent guide to phlebotomist jobs across the United States, with
+          state and city pay data, hiring guides, and employer information.
+        </p>
+      </div>
+      <nav aria-label="Explore">
+        <p class="footer-head">Explore</p>
+        <a href="/phlebotomist-jobs">Phlebotomist Jobs</a>
+        <a href="/phlebotomist-jobs-near-me">Jobs Near Me</a>
+        <a href="/phlebotomist-jobs-by-state">By State</a>
+        <a href="/phlebotomist-jobs-by-city">By City</a>
+      </nav>
+      <nav aria-label="More">
+        <p class="footer-head">More</p>
+        <a href="/phlebotomist-jobs-by-type">By Employment Type</a>
+        <a href="/phlebotomist-jobs-by-employer">By Employer</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/terms-of-service">Terms of Service</a>
+      </nav>
+    </div>
+    <div class="footer-legal">
+      <span>Copyright © {year} {SITE_NAME}. All rights reserved.</span>
+      <span class="muted">{SITE_NAME} · {LEGAL_ADDRESS} · {CONTACT_EMAIL}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink);
+    color: #c9c9c9;
+    padding: 44px 0 30px;
+    margin-top: 48px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 32px;
+  }
+
+  @media (max-width: 720px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--paper);
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .footer-blurb {
+    color: #a9a9a9;
+    font-size: 0.92rem;
+    max-width: 40ch;
+    margin-top: 12px;
+  }
+
+  .footer-head {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+  }
+
+  .site-footer nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .site-footer nav a {
+    color: #c9c9c9;
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+
+  .site-footer nav a:hover {
+    color: var(--white);
+    text-decoration: underline;
+  }
+
+  .footer-legal {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: 34px;
+    padding-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 0.82rem;
+  }
+
+  .muted {
+    color: #8a8a8a;
+  }
+</style>

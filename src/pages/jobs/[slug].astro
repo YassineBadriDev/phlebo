@@ -1,0 +1,403 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { allJobs, slugForJob, type JobRow } from "../../lib/jobs";
+import { SITE_NAME } from "../../config";
+
+export function getStaticPaths() {
+  const jobs = allJobs();
+  return jobs.map((job) => ({ params: { slug: slugForJob(job) }, props: { job } }));
+}
+
+const { job } = Astro.props as { job: JobRow };
+
+const slug = slugForJob(job);
+const clip = (s: string, n: number) => (s.length <= n ? s : s.slice(0, n).replace(/\s+\S*$/, ""));
+
+const titleRaw = `${job.title} at ${job.employer}`;
+const title = clip(titleRaw.length <= 60 ? titleRaw : `${job.title} | Phlebotomist Jobs`, 60);
+const firstPara = (job.description ?? [])[0] ?? "";
+const description = clip(firstPara.length > 100 ? firstPara : `Phlebotomist job opening at ${job.employer}. ${firstPara}`, 155);
+
+const initials = (job.employer || "?")
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((w) => w.charAt(0).toUpperCase())
+  .join("");
+
+const meta: { text: string; href?: string }[] = [];
+meta.push({ text: job.employer });
+if (job.type) meta.push({ text: job.type });
+if (job.location) meta.push({ text: job.location });
+if (job.pay) meta.push({ text: job.pay });
+if (job.posted) meta.push({ text: job.posted });
+
+const ET: Record<string, string> = {
+  "Full-Time": "FULL_TIME",
+  "Part-Time": "PART_TIME",
+  Contract: "CONTRACTOR",
+  "PRN / Per Diem": "PER_DIEM",
+};
+const employmentType = job.type ? ET[job.type] ?? "OTHER" : undefined;
+
+const payMatch = job.pay?.match(/\$([\d,]+)(?:\s*-\s*\$?([\d,]+))?(?:\s*(?:\/|per)\s*(hour|hr|year|yr|month|week))?/i);
+const baseSalary = payMatch
+  ? {
+      "@type": "MonetaryAmount",
+      currency: "USD",
+      value: {
+        "@type": "QuantitativeValue",
+        minValue: parseInt(payMatch[1].replace(/,/g, "")),
+        maxValue: payMatch[2] ? parseInt(payMatch[2].replace(/,/g, "")) : parseInt(payMatch[1].replace(/,/g, "")),
+        unitText: (payMatch[3] || "hour").replace(/hr/i, "HOUR").replace(/yr/i, "YEAR").replace(/year/i, "YEAR").replace(/month/i, "MONTH").replace(/week/i, "WEEK").replace(/hour/i, "HOUR").toUpperCase(),
+      },
+    }
+  : undefined;
+
+const locMatch = job.location?.match(/^([^,]+),\s*([A-Z]{2})\b/);
+const jobLocation = /remote/i.test(job.location ?? "")
+  ? { "@type": "Place", additionalType: "https://schema.org/RemoteJob" }
+  : locMatch
+    ? {
+        "@type": "Place",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: locMatch[1],
+          addressRegion: locMatch[2],
+          addressCountry: "US",
+        },
+      }
+    : job.location
+      ? { "@type": "Place", name: job.location }
+      : undefined;
+
+const ago = job.posted?.match(/(\d+)\s*(day|week|month|hour)s?\s*ago/i);
+const datePosted = ago
+  ? (() => {
+      const n = parseInt(ago[1]);
+      const ms = ago[2] === "day" ? 86400000 : ago[2] === "week" ? 604800000 : ago[2] === "month" ? 2592000000 : 3600000;
+      return new Date(Date.now() - n * ms).toISOString().slice(0, 10);
+    })()
+  : undefined;
+
+const jobPostingSchema = {
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  title: job.title,
+  description: (job.description ?? []).join("\n"),
+  hiringOrganization: {
+    "@type": "Organization",
+    name: job.employer,
+    ...(job.logo ? { logo: job.logo } : {}),
+  },
+  ...(jobLocation ? { jobLocation } : {}),
+  ...(employmentType ? { employmentType } : {}),
+  ...(baseSalary ? { baseSalary } : {}),
+  ...(datePosted ? { datePosted } : {}),
+  directApply: false,
+  url: job.url,
+};
+
+const related = allJobs()
+  .filter((j) => slugForJob(j) !== slug)
+  .slice(0, 6);
+---
+
+<BaseLayout title={title} description={description} path={`/jobs/${slug}`} jsonLd={[jobPostingSchema]}>
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a> <span>/</span> <a href="/phlebotomist-jobs">Phlebotomist Jobs</a> <span>/</span>
+      <span>{job.title}</span>
+    </nav>
+
+    <a class="back-link" href="/phlebotomist-jobs">&larr; Back to all jobs</a>
+
+    <div class="disclosure">
+      {SITE_NAME} is an independent job guide. This listing is aggregated for informational purposes and
+      is not affiliated with, endorsed by, or sponsored by {job.employer}.
+    </div>
+
+    <div class="job-inner-wrapper">
+      <aside class="job-inner-left">
+        <div class="job-card">
+          <div class="job-header">
+            <h1>{job.title}</h1>
+            <div class="job-detail-box">
+              {
+                meta.map((m, i) => (
+                  <span class="meta-group">
+                    {i > 0 && <span class="divider">&#8226;</span>}
+                    <span class="meta-item">{m.text}</span>
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+          <div class="job-body">
+            {
+              (job.description ?? []).map((p) => (
+                <p>{p}</p>
+              ))
+            }
+            {
+              !job.description && (
+                <>
+                  <p>Full job description is provided on the original listing.</p>
+                  <a href={job.url} target="_blank" rel="noopener nofollow">
+                    View the full posting on {job.source || "the employer site"}
+                  </a>
+                </>
+              )
+            }
+          </div>
+        </div>
+      </aside>
+
+      <aside class="job-inner-right">
+        <div class="sidebar-card">
+          <div class="job-logo">
+            <span class="logo-fallback">{initials}</span>
+            {
+              job.logo && (
+                <img
+                  class="logo-img"
+                  src={job.logo}
+                  alt={job.employer}
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                  onerror="this.remove()"
+                />
+              )
+            }
+          </div>
+          <div class="sidebar-company">{job.employer}</div>
+          <a class="job-apply" href={job.url} target="_blank" rel="noopener nofollow">
+            Apply for this job
+          </a>
+          <p class="apply-note">Opens the original listing on {job.source || "the employer"} in a new tab.</p>
+        </div>
+      </aside>
+    </div>
+
+    {
+      related.length > 0 && (
+        <section class="section">
+          <div class="section-head">
+            <h2>More Phlebotomist Jobs</h2>
+            <span class="kicker mono">Openings</span>
+          </div>
+          <div class="related-jobs">
+            {
+              related.map((r) => (
+                <a class="rel-job" href={`/jobs/${slugForJob(r)}`}>
+                  <span class="rel-title">{r.title}</span>
+                  <span class="rel-org">{r.employer}</span>
+                  <span class="rel-loc">{r.location}</span>
+                </a>
+              ))
+            }
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+
+  .back-link:hover {
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
+
+  .job-inner-wrapper {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .job-card,
+  .sidebar-card {
+    background: var(--white);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .job-header {
+    padding: 24px 26px 20px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .job-header h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin: 0 0 12px;
+    line-height: 1.2;
+  }
+
+  .job-detail-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+  }
+
+  .meta-item {
+    font-size: 0.95rem;
+    color: #0f172a;
+  }
+
+  .divider {
+    color: #94a3b8;
+    margin: 0 2px;
+  }
+
+  .job-body {
+    padding: 24px 26px 28px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1e293b;
+  }
+
+  .job-body p {
+    margin: 0 0 1em;
+  }
+
+  .sidebar-card {
+    padding: 26px 18px 24px;
+    text-align: center;
+    position: sticky;
+    top: 20px;
+  }
+
+  .job-logo {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 14px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+  }
+
+  .logo-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #64748b;
+    border-radius: 12px;
+  }
+
+  .logo-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--white);
+    border-radius: 12px;
+    padding: 6px;
+  }
+
+  .sidebar-company {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+
+  .job-apply {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 26px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .job-apply:hover {
+    background: var(--ink-2);
+    text-decoration: none;
+  }
+
+  .apply-note {
+    margin: 12px 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .related-jobs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .rel-job {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .rel-job:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .rel-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .rel-org {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .rel-loc {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 860px) {
+    .job-inner-wrapper {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar-card {
+      position: static;
+    }
+
+    .related-jobs {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

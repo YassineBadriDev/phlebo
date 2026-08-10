@@ -1,0 +1,248 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { keywords } from "../data/keywords";
+import { salaryRecords, salaryYear } from "../data/salary";
+import { NATIONAL_FAQ } from "../data/faq";
+import { faqSchema, websiteSchema, siteOrganizationSchema } from "../lib/entities";
+import { CLUSTER_HUBS, CLUSTER_LABELS } from "../config";
+import AdSlot from "../components/AdSlot.astro";
+import SearchBox from "../components/SearchBox.astro";
+import JobOpenings from "../components/JobOpenings.astro";
+
+const us = salaryRecords.us;
+const topStates = keywords
+  .filter((k) => k.cluster === "Geo: State-Level")
+  .sort((a, b) => b.volume - a.volume)
+  .slice(0, 12);
+const topCities = keywords
+  .filter((k) => k.cluster === "Geo: City-Level" && k.subcluster !== "My Area")
+  .sort((a, b) => b.volume - a.volume)
+  .slice(0, 12);
+const employerPages = keywords.filter((k) => k.cluster === "Employer-Branded");
+
+const hubLinks = (["Employment Type", "Geo: State-Level", "Geo: City-Level", "Employer-Branded"] as const).map(
+  (c) => ({ cluster: c, href: CLUSTER_HUBS[c], label: CLUSTER_LABELS[c] })
+);
+
+const schemas = [websiteSchema(), siteOrganizationSchema(), faqSchema(NATIONAL_FAQ)];
+---
+
+<BaseLayout
+  title="Phlebotomist Jobs | Hiring, Pay & Openings"
+  description="Phlebotomist job openings across the United States, with pay data by state and city, hiring requirements, and employer guides."
+  path="/"
+  jsonLd={schemas}
+>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">Independent Job Guide</p>
+      <h1>Phlebotomist Jobs Across the United States</h1>
+      <p class="lede">
+        Compare phlebotomist openings, pay, and requirements in every state and
+        the cities that hire the most. Updated daily.
+      </p>
+      <SearchBox />
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="section">
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="num">${us.employment?.toLocaleString("en-US")}</div>
+          <div class="lbl">Phlebotomist Jobs (est.)</div>
+        </div>
+        <div class="stat">
+          <div class="num">${us.hourlyMedian != null ? `$${us.hourlyMedian}` : "n/a"}</div>
+          <div class="lbl">Median Hourly Wage</div>
+        </div>
+        <div class="stat">
+          <div class="num">${us.annualMedian != null ? `$${us.annualMedian.toLocaleString("en-US")}` : "n/a"}</div>
+          <div class="lbl">Median Annual Wage</div>
+        </div>
+      </div>
+      <p class="copy-note">
+        BLS OEWS (SOC 31-9097), May {salaryYear}. Median wages for the occupation
+        group that includes phlebotomists.
+      </p>
+    </section>
+
+    <AdSlot />
+
+    <section class="section">
+      <div class="section-head">
+        <h2>
+          <a class="anchor-link" href="#jobs" data-scroll-to="jobs">Browse Phlebotomist Jobs</a>
+        </h2>
+        <span class="kicker mono">Guides</span>
+      </div>
+      <div class="grid grid-3">
+        {
+          hubLinks.map((h) => (
+            <a class="card hub-card" href={h.href}>
+              <h3>{h.label}</h3>
+              <p>Pay, openings, and hiring details for {h.label.toLowerCase()}.</p>
+            </a>
+          ))
+        }
+        <a class="card hub-card" href="/phlebotomist-jobs-near-me">
+          <h3>Phlebotomist Jobs Near Me</h3>
+          <p>Local openings and how to find phlebotomist jobs in your area.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Top States Hiring Phlebotomists</h2>
+        <span class="kicker mono">By search volume</span>
+      </div>
+      <div class="grid grid-3">
+        {
+          topStates.map((s) => (
+            <a class="card mini-card" href={`/${s.slug}`}>
+              <h3>{s.subcluster}</h3>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Top Cities Hiring Phlebotomists</h2>
+        <span class="kicker mono">By search volume</span>
+      </div>
+      <div class="grid grid-3">
+        {
+          topCities.map((c) => (
+            <a class="card mini-card" href={`/${c.slug}`}>
+              <h3>{c.h1.replace(/Phlebotomist Jobs /, "").replace(/ jobs/i, "")}</h3>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <AdSlot />
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Phlebotomist Jobs by Employer</h2>
+        <span class="kicker mono">Independent guides</span>
+      </div>
+      <div class="grid grid-3">
+        {
+          employerPages.map((e) => (
+            <a class="card mini-card" href={`/${e.slug}`}>
+              <h3>{e.h1}</h3>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Frequently Asked Questions</h2>
+      {
+        NATIONAL_FAQ.map((f) => (
+          <details class="faq">
+            <summary>{f.q}</summary>
+            <div class="faq-body">
+              <p>{f.a}</p>
+            </div>
+          </details>
+        ))
+      }
+    </section>
+
+    <section class="section" id="jobs">
+      <JobOpenings slug="phlebotomist-jobs" />
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .grid-3 a.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .hub-card {
+    min-height: 132px;
+  }
+
+  .anchor-link {
+    color: inherit;
+  }
+
+  .anchor-link:hover {
+    color: var(--accent-dark);
+    text-decoration: underline;
+  }
+
+  .hub-card h3 {
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+
+  .hub-card p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .hub-card:hover {
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .mini-card {
+    position: relative;
+    padding: 14px 42px 14px 16px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+
+  .mini-card h3 {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+
+  .mini-card::after {
+    content: "\2192";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: var(--muted);
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+
+  .mini-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(34, 34, 34, 0.07);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .mini-card:hover::after {
+    color: var(--accent);
+    transform: translateY(-50%) translateX(2px);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-scroll-to]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = document.getElementById(link.dataset.scrollTo!);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+</script>

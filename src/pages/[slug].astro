@@ -1,0 +1,105 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { keywords } from "../data/keywords";
+import { makePageTitle } from "../lib/title";
+import { pageSchemas } from "../lib/entities";
+import { salaryForPage } from "../lib/salary";
+import { relatedLinks } from "../lib/related";
+import { getFaq } from "../data/faq";
+import { sectionBody } from "../lib/content";
+import { CLUSTER_LABELS, SITE_NAME } from "../config";
+import { employerForPage } from "../data/employers";
+import SalaryTable from "../components/SalaryTable.astro";
+import JobOpenings from "../components/JobOpenings.astro";
+import AdSlot from "../components/AdSlot.astro";
+import SearchBox from "../components/SearchBox.astro";
+
+export function getStaticPaths() {
+  return keywords.map((page) => ({ params: { slug: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const title = makePageTitle(page.pageTitle);
+const description = page.metaDescription;
+const noindex =
+  (page.cluster === "Geo: State-Level" || page.cluster === "Geo: City-Level") && page.volume <= 20;
+const schemas = pageSchemas(page);
+const salary = salaryForPage(page);
+const related = relatedLinks(page);
+const faq = getFaq(page);
+const employer = employerForPage(page.slug);
+const isFaqHeading = (h: string) => h.toLowerCase().startsWith("frequently asked questions");
+---
+
+<BaseLayout title={title} description={description} path={`/${page.slug}`} noindex={noindex} jsonLd={schemas}>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">{CLUSTER_LABELS[page.cluster]}</p>
+      <h1>{page.h1}</h1>
+      <p class="lede">{page.intro}</p>
+      <SearchBox />
+    </div>
+  </section>
+
+  <div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a> <span>/</span> <span>{page.h1}</span>
+    </nav>
+
+    <AdSlot />
+
+    {
+      employer && (
+        <div class="disclosure">
+          {SITE_NAME} is an independent job guide and is not affiliated with, endorsed by, or
+          sponsored by {employer.name}.
+        </div>
+      )
+    }
+
+    <SalaryTable page={page} />
+    <AdSlot />
+    <JobOpenings slug={page.slug} />
+
+    <article class="card">
+      {
+        page.outline.map((item) =>
+          isFaqHeading(item.text) ? (
+            <section>
+              <h2>Frequently Asked Questions</h2>
+              {
+                faq.map((f) => (
+                  <details class="faq">
+                    <summary>{f.q}</summary>
+                    <div class="faq-body">
+                      <p>{f.a}</p>
+                    </div>
+                  </details>
+                ))
+              }
+            </section>
+          ) : (
+            <section>
+              {item.level === "h2" ? <h2>{item.text}</h2> : <h3>{item.text}</h3>}
+              <p>{sectionBody(item.text, page, salary)}</p>
+            </section>
+          )
+        )
+      }
+    </article>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Related Phlebotomist Jobs</h2>
+        <span class="kicker mono">More pages</span>
+      </div>
+      <div class="related-links">
+        {
+          related.map((r) => (
+            <a href={`/${r.slug}`}>{r.title}</a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>

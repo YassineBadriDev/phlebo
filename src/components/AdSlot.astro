@@ -1,0 +1,11 @@
+---
+const adsenseId = import.meta.env.PUBLIC_ADSENSE_CLIENT_ID;
+---
+
+{
+  adsenseId && (
+    <div class="ad-slot" aria-hidden="true">
+      Advertisement
+    </div>
+  )
+}

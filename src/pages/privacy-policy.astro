@@ -1,0 +1,90 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME, SITE_URL, CONTACT_EMAIL, LEGAL_ADDRESS } from "../config";
+const updated = "January 1, 2026";
+---
+
+<BaseLayout
+  title={`Privacy Policy | ${SITE_NAME}`}
+  description={`The ${SITE_NAME} privacy policy explains what information we collect and how it is used.`}
+  path="/privacy-policy"
+>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">Legal</p>
+      <h1>Privacy Policy</h1>
+      <p class="lede">Last updated: {updated}</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <article class="card legal">
+      <h2>Overview</h2>
+      <p>
+        {SITE_NAME} operates {SITE_URL} to publish phlebotomist job information.
+        This policy describes what information may be collected when you visit,
+        and how it is used.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <p>
+        This site is largely static and does not require an account. We do not
+        collect names, email addresses, or other personal information unless you
+        contact us directly by email at {CONTACT_EMAIL}.
+      </p>
+
+      <h2>Automatic Data</h2>
+      <p>
+        Like most websites, our hosting provider and any analytics or
+        advertising services may automatically log technical information such as
+        your IP address, browser type, pages visited, and referral source. This
+        information is used for security, performance, and to understand general
+        usage patterns.
+      </p>
+
+      <h2>Advertising</h2>
+      <p>
+        We may show advertising served by Google AdSense. Google and its
+        partners use cookies to serve ads based on visits to this and other
+        sites. You can learn how Google uses data at
+        policies.google.com/technologies/partner-sites, and you can opt out of
+        personalized advertising through Google's Ads Settings.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        If Google Analytics is enabled, it uses cookies to collect aggregate
+        usage statistics such as page views and approximate geographic location.
+        These statistics help us understand which job pages are most useful.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        Cookies are small text files stored by your browser. You can disable
+        cookies in your browser settings; most of this site will still work
+        without them.
+      </p>
+
+      <h2>Third-Party Links</h2>
+      <p>
+        Our pages link to employers and job boards that have their own privacy
+        policies. We are not responsible for their practices.
+      </p>
+
+      <h2>Your Choices</h2>
+      <p>
+        You can contact us at {CONTACT_EMAIL} to ask questions about this policy
+        or request deletion of any personal information you have sent us.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        We may update this policy from time to time. Changes will be posted on
+        this page with an updated date.
+      </p>
+    </article>
+    <p class="copy-note">
+      {SITE_NAME} · {LEGAL_ADDRESS} · {CONTACT_EMAIL}
+    </p>
+  </div>
+</BaseLayout>

@@ -1,0 +1,59 @@
+---
+import { keywords } from "../data/keywords";
+import { CLUSTER_LABELS } from "../config";
+
+const groups = (Object.keys(CLUSTER_LABELS) as (keyof typeof CLUSTER_LABELS)[]).map(
+  (cluster) => ({
+    label: CLUSTER_LABELS[cluster],
+    pages: keywords.filter((k) => k.cluster === cluster),
+  })
+);
+---
+
+<form class="search" action="/" method="get" data-jump>
+  <select name="go" aria-label="Jump to a phlebotomist jobs page">
+    <option value="">Find a phlebotomist jobs page…</option>
+    {
+      groups.map((g) => (
+        <optgroup label={g.label}>
+          {
+            g.pages.map((p) => (
+              <option value={`/${p.slug}`}>{p.h1}</option>
+            ))
+          }
+        </optgroup>
+      ))
+    }
+  </select>
+  <button class="pill" type="submit">Go</button>
+</form>
+
+<script>
+  document.querySelectorAll("form[data-jump]").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const select = form.querySelector("select");
+      const value = select?.value;
+      if (value) window.location.href = value;
+    });
+  });
+</script>
+
+<style>
+  .search {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .search select {
+    flex: 1 1 260px;
+    padding: 11px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    background: var(--white);
+    color: var(--ink);
+  }
+</style>

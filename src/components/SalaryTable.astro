@@ -1,0 +1,42 @@
+---
+import type { KeywordPage } from "../data/keywords";
+import { salaryForPage } from "../lib/salary";
+
+interface Props {
+  page: KeywordPage;
+}
+
+const { page } = Astro.props;
+const view = salaryForPage(page);
+const fmt = new Intl.NumberFormat("en-US");
+const usd = (n: number) => `$${n.toLocaleString("en-US")}`;
+---
+
+<section class="card salary-card">
+  <div class="section-head">
+    <h2>Phlebotomist Pay in {view.area.title}</h2>
+    <span class="kicker mono">OEWS 31-9097</span>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="num">{view.hourlyMedian != null ? usd(view.hourlyMedian) : "n/a"}</div>
+      <div class="lbl">Median Hourly Wage</div>
+    </div>
+    <div class="stat">
+      <div class="num">{view.annualMedian != null ? usd(view.annualMedian) : "n/a"}</div>
+      <div class="lbl">Median Annual Wage</div>
+    </div>
+    <div class="stat">
+      <div class="num">{view.employment != null ? fmt.format(view.employment) : "n/a"}</div>
+      <div class="lbl">Phlebotomist Jobs (est.)</div>
+    </div>
+  </div>
+
+  <p class="copy-note">
+    Median wages are for the occupation group that includes phlebotomists
+    (SOC 31-9097), May {view.year}. Source: U.S. Bureau of Labor Statistics,
+    Occupational Employment and Wage Statistics. Actual pay varies by employer,
+    shift, and experience.
+  </p>
+</section>

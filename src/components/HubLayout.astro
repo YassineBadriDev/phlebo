@@ -1,0 +1,119 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { keywords, type KeywordCluster } from "../data/keywords";
+import { CLUSTER_LABELS, CLUSTER_DESCRIPTIONS } from "../config";
+import { cityLocations } from "../data/locations";
+import SearchBox from "./SearchBox.astro";
+
+interface Props {
+  cluster: KeywordCluster;
+  path: string;
+  heroTitle: string;
+  heroLede: string;
+}
+
+const { cluster, path, heroTitle, heroLede } = Astro.props;
+const pages = keywords.filter((k) => k.cluster === cluster);
+const title = heroTitle;
+
+interface Group {
+  label: string;
+  items: { slug: string; title: string; volume: number }[];
+}
+
+let groups: Group[];
+
+if (cluster === "Geo: City-Level") {
+  const map = new Map<string, { slug: string; title: string; volume: number }[]>();
+  for (const p of pages) {
+    const loc = cityLocations[p.subcluster];
+    const label = loc ? loc.state : "Other";
+    const list = map.get(label) ?? [];
+    list.push({ slug: p.slug, title: p.h1, volume: p.volume });
+    map.set(label, list);
+  }
+  groups = [...map.entries()]
+    .map(([label, items]) => ({ label, items: items.sort((a, b) => b.volume - a.volume) }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+} else if (cluster === "Employment Type") {
+  const map = new Map<string, { slug: string; title: string; volume: number }[]>();
+  for (const p of pages) {
+    const list = map.get(p.subcluster) ?? [];
+    list.push({ slug: p.slug, title: p.h1, volume: p.volume });
+    map.set(p.subcluster, list);
+  }
+  groups = [...map.entries()].map(([label, items]) => ({
+    label,
+    items: items.sort((a, b) => b.volume - a.volume),
+  }));
+} else {
+  const sorted = pages
+    .map((p) => ({ slug: p.slug, title: p.h1, volume: p.volume }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const map = new Map<string, typeof sorted>();
+  for (const item of sorted) {
+    const letter = item.title.charAt(0).toUpperCase();
+    const list = map.get(letter) ?? [];
+    list.push(item);
+    map.set(letter, list);
+  }
+  groups = [...map.entries()]
+    .map(([label, items]) => ({ label, items }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+---
+
+<BaseLayout title={title} description={CLUSTER_DESCRIPTIONS[cluster]} path={path}>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">{CLUSTER_LABELS[cluster]}</p>
+      <h1>{heroTitle}</h1>
+      <p class="lede">{heroLede}</p>
+      <SearchBox />
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="section">
+      <div class="section-head">
+        <h2>{CLUSTER_LABELS[cluster]}</h2>
+        <span class="kicker mono">{pages.length} pages</span>
+      </div>
+      <div class="hub-groups">
+        {
+          groups.map((g) => (
+            <div class="hub-group">
+              <h3>{g.label}</h3>
+              <ul class="link-list">
+                {
+                  g.items.map((item) => (
+                    <li>
+                      <a href={`/${item.slug}`}>{item.title}</a>
+                      <span class="muted"> · {item.volume.toLocaleString("en-US")}</span>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .hub-groups {
+    display: grid;
+    gap: 26px;
+  }
+
+  .hub-group h3 {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 8px;
+  }
+</style>

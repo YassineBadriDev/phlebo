@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { CONTACT_EMAIL, SITE_NAME, LEGAL_ADDRESS } from "../config";
+---
+
+<BaseLayout
+  title={`Contact ${SITE_NAME}`}
+  description={`Contact the ${SITE_NAME} team about phlebotomist job listings, data corrections, and partnerships.`}
+  path="/contact"
+>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">Contact</p>
+      <h1>Contact Phlebotomist Jobs</h1>
+      <p class="lede">
+        Questions about a page, a data correction, or a partnership? Send us a
+        note and we will get back to you.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="section">
+      <div class="card">
+        <h2>Get in Touch</h2>
+        <p>
+          Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+        </p>
+        <p>
+          Mail: {SITE_NAME}, {LEGAL_ADDRESS}
+        </p>
+        <p>
+          We aim to reply within two business days. For job application status
+          questions, please contact the employer or job board directly, because
+          this site does not process applications.
+        </p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

@@ -1,0 +1,114 @@
+---
+import { SITE_NAME } from "../config";
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <img src="/mark.svg" alt="" width="30" height="30" />
+      <span class="brand-name">{SITE_NAME}</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="/phlebotomist-jobs-by-state">By State</a>
+      <a href="/phlebotomist-jobs-by-city">By City</a>
+      <a href="/phlebotomist-jobs-by-type">By Type</a>
+      <a href="/phlebotomist-jobs-by-employer">By Employer</a>
+      <a class="cta" href="/phlebotomist-jobs" data-scroll-to="jobs">Browse Jobs</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--ink);
+    color: var(--paper);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--paper);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .brand:hover {
+    text-decoration: none;
+  }
+
+  .brand-name {
+    white-space: nowrap;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 0.9rem;
+  }
+
+  .nav a {
+    color: #d5d5d5;
+    text-decoration: none;
+  }
+
+  .nav a:hover {
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .nav a.cta {
+    color: var(--white);
+    background: var(--accent);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .nav a.cta:hover {
+    background: var(--accent-dark);
+  }
+
+  @media (max-width: 760px) {
+    .header-inner {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .nav {
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-scroll-to]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const target = document.getElementById(link.dataset.scrollTo!);
+      if (target) {
+        event.preventDefault();
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+</script>

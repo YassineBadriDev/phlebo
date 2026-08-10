@@ -1,0 +1,88 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME, SITE_URL, CONTACT_EMAIL, LEGAL_ADDRESS } from "../config";
+const updated = "January 1, 2026";
+---
+
+<BaseLayout
+  title={`Terms of Service | ${SITE_NAME}`}
+  description={`The ${SITE_NAME} terms of service governing use of the phlebotomist job information site.`}
+  path="/terms-of-service"
+>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">Legal</p>
+      <h1>Terms of Service</h1>
+      <p class="lede">Last updated: {updated}</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <article class="card legal">
+      <h2>Acceptance of Terms</h2>
+      <p>
+        By accessing {SITE_URL}, you agree to these terms. If you do not agree,
+        please do not use the site.
+      </p>
+
+      <h2>Informational Use Only</h2>
+      <p>
+        {SITE_NAME} publishes information about phlebotomist jobs, pay, and
+        hiring for general informational purposes. It is not a job board, an
+        employer, a staffing agency, or a source of legal, medical, or career
+        advice.
+      </p>
+
+      <h2>Independent Publisher</h2>
+      <p>
+        This site is an independent guide and is not affiliated with, endorsed
+        by, or sponsored by any employer, laboratory, or certification
+        organization referenced on the site. All company and product names are
+        the trademarks of their respective owners.
+      </p>
+
+      <h2>Accuracy Disclaimer</h2>
+      <p>
+        We work to keep pay figures, opening counts, and employer details
+        accurate and current, but information can change and may contain errors
+        or omissions. You should confirm details with the employer, licensing
+        agency, or official source before making decisions. We make no warranty
+        that any job listing will exist, remain open, or result in employment.
+      </p>
+
+      <h2>External Links</h2>
+      <p>
+        The site links to third-party websites. We do not control their content
+        and are not responsible for anything found there.
+      </p>
+
+      <h2>Intellectual Property</h2>
+      <p>
+        Unless otherwise noted, the text and design of this site are the
+        property of {SITE_NAME}. You may not republish substantial portions of
+        the site without permission.
+      </p>
+
+      <h2>Limitation of Liability</h2>
+      <p>
+        To the maximum extent permitted by law, {SITE_NAME} and its operators
+        are not liable for any direct, indirect, or consequential damages
+        arising from use of the site or reliance on its content.
+      </p>
+
+      <h2>Governing Law</h2>
+      <p>
+        These terms are governed by the laws of the State of New York, United
+        States, without regard to conflict of law principles.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about these terms can be sent to {CONTACT_EMAIL}.
+      </p>
+    </article>
+    <p class="copy-note">
+      {SITE_NAME} · {LEGAL_ADDRESS} · {CONTACT_EMAIL}
+    </p>
+  </div>
+</BaseLayout>
