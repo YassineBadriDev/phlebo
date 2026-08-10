@@ -201,7 +201,7 @@ async function scrapeLinkedIn(page, profile, max) {
 console.log(`targets: ${targets.length} (max jobs/category: ${maxJobs})`);
 
 async function launch() {
-  const b = await chrome.launch({ headless: !stealthReady });
+  const b = await chrome.launch({ headless: process.env.HEADLESS ? true : !stealthReady });
   const c = await b.newContext({ userAgent: UA, viewport: { width: 1366, height: 900 }, locale: "en-US" });
   const p = await c.newPage();
   return { browser: b, context: c, page: p };

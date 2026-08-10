@@ -122,7 +122,7 @@ console.log(`jobs missing logo: ${keys.length}, pending (not done): ${pending.le
 console.log(`employer pool size: ${empLogo.size}; those covered by pool will be filled without visiting.`);
 
 async function run() {
-  const browser = await chrome.launch({ headless: !stealthReady });
+  const browser = await chrome.launch({ headless: process.env.HEADLESS ? true : !stealthReady });
   const context = await browser.newContext({ userAgent: UA, viewport: { width: 1366, height: 900 }, locale: "en-US" });
   const pages = [];
   for (let i = 0; i < PARALLEL; i++) pages.push(await context.newPage());

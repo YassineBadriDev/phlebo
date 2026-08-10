@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set "ROOT=C:\Users\yassi\AppData\Local\Temp\opencode\phlebotomistjobs"
+set "ROOT=C:\Users\yassi\phlebo"
 set "LOCK=%ROOT%\scripts\.refresh.lock"
 set "LOG=%ROOT%\scripts\refresh.log"
 
