@@ -9,6 +9,7 @@ const staticPaths = [
   "/phlebotomist-jobs-by-state",
   "/phlebotomist-jobs-by-city",
   "/phlebotomist-jobs-by-employer",
+  "/post-a-job",
   "/contact",
   "/privacy-policy",
   "/terms-of-service",

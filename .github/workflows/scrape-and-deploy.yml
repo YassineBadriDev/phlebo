@@ -53,6 +53,9 @@ jobs:
           HEADLESS: "1"
         run: node scripts/backfill-logos.mjs --par=4
 
+      - name: Merge posted jobs
+        run: node scripts/merge-posted-jobs.mjs
+
       - name: Commit updated data
         run: |
           git config user.name "github-actions[bot]"

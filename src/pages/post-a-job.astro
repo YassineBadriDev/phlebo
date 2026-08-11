@@ -1,0 +1,248 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE_NAME } from "../config";
+---
+
+<BaseLayout
+  title={`Post a Phlebotomist Job | ${SITE_NAME}`}
+  description={`Post a phlebotomist job opening on ${SITE_NAME} for free. Recruiters and employers can list phlebotomist positions and reach active job seekers.`}
+  path="/post-a-job"
+>
+  <section class="hero">
+    <div class="container">
+      <p class="kicker mono">For Recruiters</p>
+      <h1>Post a Phlebotomist Job</h1>
+      <p class="lede">
+        List your phlebotomist opening for free. Approved jobs appear in the
+        phlebotomist job listings on our next refresh (up to twice daily).
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    <section class="section">
+      <div class="card">
+        <h2>Job Details</h2>
+        <form id="post-job-form" class="post-form" novalidate>
+          <div class="field">
+            <label for="title">Job title *</label>
+            <input id="title" name="title" type="text" maxlength="120" required autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="employer">Company / employer *</label>
+            <input id="employer" name="employer" type="text" maxlength="120" required autocomplete="organization" />
+          </div>
+
+          <div class="field">
+            <label for="location">Location (city, state or Remote) *</label>
+            <input id="location" name="location" type="text" maxlength="120" required placeholder="e.g. Houston, TX" />
+          </div>
+
+          <div class="field">
+            <label for="type">Employment type</label>
+            <select id="type" name="type">
+              <option value="Full-Time">Full-Time</option>
+              <option value="Part-Time">Part-Time</option>
+              <option value="Contract">Contract</option>
+              <option value="PRN / Per Diem">PRN / Per Diem</option>
+              <option value="Travel">Travel</option>
+              <option value="Internship">Internship</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="pay">Pay / compensation (optional)</label>
+            <input id="pay" name="pay" type="text" maxlength="80" placeholder="e.g. $18–$24 / hour" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="url">Application URL *</label>
+            <input id="url" name="url" type="url" maxlength="500" required placeholder="https://... where candidates apply" />
+          </div>
+
+          <div class="field">
+            <label for="description">Job description (optional)</label>
+            <textarea id="description" name="description" rows="6" maxlength="5000"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="email">Contact email (optional, not shown publicly)</label>
+            <input id="email" name="email" type="email" maxlength="120" autocomplete="email" />
+          </div>
+
+          <div class="field hp" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <p id="form-msg" class="form-msg" role="status"></p>
+
+          <button class="submit-btn" type="submit">Post Job</button>
+          <p class="copy-note">
+            Listings are moderated for spam and may take up to 12 hours to appear
+            after a refresh. {SITE_NAME} does not process applications or contact
+            candidates on your behalf.
+          </p>
+        </form>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .post-form {
+    display: grid;
+    gap: 18px;
+    max-width: 640px;
+    margin-top: 20px;
+  }
+
+  .field {
+    display: grid;
+    gap: 6px;
+  }
+
+  .field label {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--white);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(229, 81, 62, 0.12);
+  }
+
+  .field input.invalid,
+  .field textarea.invalid {
+    border-color: var(--accent);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .form-msg {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-height: 1.4em;
+  }
+
+  .form-msg.ok {
+    color: #166534;
+  }
+
+  .form-msg.err {
+    color: var(--accent-dark);
+  }
+
+  .submit-btn {
+    background: var(--ink);
+    color: var(--white);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 13px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+    justify-self: start;
+  }
+
+  .submit-btn:hover {
+    background: var(--ink-2);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+</style>
+
+<script>
+  const form = document.getElementById("post-job-form") as HTMLFormElement;
+  const msg = document.getElementById("form-msg") as HTMLParagraphElement;
+  const btn = form.querySelector(".submit-btn") as HTMLButtonElement;
+
+  function setMsg(text: string, kind: "ok" | "err") {
+    msg.textContent = text;
+    msg.className = `form-msg ${kind}`;
+  }
+
+  function markInvalid(name: string, invalid: boolean) {
+    const el = form.querySelector(`[name="${name}"]`) as HTMLElement | null;
+    if (el) el.classList.toggle("invalid", invalid);
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    setMsg("", "ok");
+
+    const data: Record<string, string> = {};
+    for (const el of Array.from(form.elements) as HTMLInputElement[]) {
+      if (el.name) data[el.name] = el.value;
+    }
+
+    const missing = ["title", "employer", "location", "url"].filter((f) => !data[f].trim());
+    if (missing.length) {
+      missing.forEach((f) => markInvalid(f, true));
+      setMsg(`Please fill in: ${missing.join(", ")}.`, "err");
+      return;
+    }
+    if (!/^https?:\/\/.+/i.test(data.url)) {
+      markInvalid("url", true);
+      setMsg("Application URL must be a valid http(s) link.", "err");
+      return;
+    }
+
+    btn.disabled = true;
+    setMsg("Submitting...", "ok");
+
+    try {
+      const res = await fetch("/api/post-job", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const parsed = await res.json().catch(() => ({}));
+      if (res.ok && parsed.ok) {
+        form.reset();
+        setMsg("Thanks! Your job was submitted and will appear in the listings after the next refresh (up to 12 hours).", "ok");
+      } else {
+        setMsg(parsed.error || "Something went wrong. Please try again.", "err");
+      }
+    } catch {
+      setMsg("Network error. Please check your connection and try again.", "err");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>

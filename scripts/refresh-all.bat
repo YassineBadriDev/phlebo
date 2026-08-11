@@ -16,8 +16,28 @@ cd /d "%ROOT%"
 node scripts\scrape-categories.mjs --refresh --max=6 --delay=700 >> "%LOG%" 2>&1
 node scripts\scrape-linkedin-categories.mjs --refresh --max=5 --delay=600 >> "%LOG%" 2>&1
 node scripts\backfill-logos.mjs --par=4 >> "%LOG%" 2>&1
+node scripts\merge-posted-jobs.mjs >> "%LOG%" 2>&1
 npm run build >> "%LOG%" 2>&1
 
+git add -A
+git diff --cached --quiet
+if %errorlevel%==0 (
+  echo %date% %time% PUSH SKIP - no data changes >> "%LOG%"
+) else (
+  git commit -m "chore: refresh job listings [skip ci]" >> "%LOG%" 2>&1
+  for /l %%i in (1,1,3) do (
+    git pull --rebase origin main >> "%LOG%" 2>&1
+    git push origin main >> "%LOG%" 2>&1
+    if %errorlevel%==0 goto pushed
+    echo %date% %time% PUSH rejected (race), retrying... >> "%LOG%"
+    timeout /t 10 /nobreak >nul
+  )
+  echo %date% %time% PUSH FAILED after 3 attempts >> "%LOG%"
+  goto end
+)
+:pushed
+echo %date% %time% PUSH DONE >> "%LOG%"
+:end
 del "%LOCK%" 2>nul
 echo %date% %time% REFRESH END >> "%LOG%"
 endlocal
