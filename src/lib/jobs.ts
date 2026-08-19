@@ -51,3 +51,7 @@ export function slugForJob(job: JobRow): string {
 export function jobBySlug(slug: string): JobRow | undefined {
   return allJobs().find((j) => slugForJob(j) === slug);
 }
+
+export function dataUpdatedAt(): string | null {
+  return jobsFile.updatedAt;
+}

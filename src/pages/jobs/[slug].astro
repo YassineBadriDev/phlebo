@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { allJobs, slugForJob, type JobRow } from "../../lib/jobs";
+import { allJobs, slugForJob, dataUpdatedAt, type JobRow } from "../../lib/jobs";
 import { SITE_NAME } from "../../config";
 
 export function getStaticPaths() {
@@ -78,6 +78,9 @@ const datePosted = ago
       const ms = ago[2] === "day" ? 86400000 : ago[2] === "week" ? 604800000 : ago[2] === "month" ? 2592000000 : 3600000;
       return new Date(Date.now() - n * ms).toISOString().slice(0, 10);
     })()
+  : dataUpdatedAt() ?? new Date().toISOString().slice(0, 10);
+const validThrough = datePosted
+  ? new Date(new Date(`${datePosted}T00:00:00Z`).getTime() + 30 * 86400000).toISOString().slice(0, 10)
   : undefined;
 
 const jobPostingSchema = {
@@ -93,9 +96,15 @@ const jobPostingSchema = {
   ...(jobLocation ? { jobLocation } : {}),
   ...(employmentType ? { employmentType } : {}),
   ...(baseSalary ? { baseSalary } : {}),
-  ...(datePosted ? { datePosted } : {}),
+  datePosted,
+  ...(validThrough ? { validThrough } : {}),
   directApply: false,
   url: job.url,
+  identifier: {
+    "@type": "PropertyValue",
+    name: "phlebotomistjobs",
+    value: slug,
+  },
 };
 
 const related = allJobs()
