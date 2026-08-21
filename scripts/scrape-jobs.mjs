@@ -406,8 +406,9 @@ async function enrichIndeed(page, job) {
 }
 
 const browser = await chrome.launch({
-  headless: !stealthReady,
-  executablePath: stealthReady ? undefined : undefined,
+  headless: true,
+  executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+  args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
 });
 const context = await browser.newContext({ userAgent: UA, viewport: { width: 1366, height: 900 }, locale: "en-US" });
 
